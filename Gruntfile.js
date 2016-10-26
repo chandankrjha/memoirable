@@ -66,7 +66,8 @@ module.exports = function (grunt) {
 
           preLoaders: [
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
-            { test: /\.js$/, loader: 'source-map-loader' }
+            { test: /\.js$/, loader: 'source-map-loader' },
+             { test: /\.json$/, loader: "json-loader" }
           ]
         },
 
@@ -89,7 +90,7 @@ module.exports = function (grunt) {
           port: portConfig.build,
           base: buildPaths.buildLocation,
           open: {
-            target: 'http://127.0.0.1:<%= connect.build.options.port %>/index.html'
+            target: 'http://127.0.0.1:<%= connect.build.options.port %>'
           }
         }
       }

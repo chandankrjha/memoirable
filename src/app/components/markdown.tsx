@@ -3,7 +3,8 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { browserHistory, IndexLink, Link } from 'react-router';
-import * as Marked from 'marked';
+declare function require(name:string);
+var mdc = require('markdown-core/markdown-core-node');
 
 export class Markdown extends React.Component<{}, any> {
   outputHTML: any;
@@ -17,7 +18,7 @@ export class Markdown extends React.Component<{}, any> {
 
   handleChange(event) {
     this.inputText = event.target.value;
-    this.outputHTML = Marked(this.inputText);
+    this.outputHTML = mdc.render(this.inputText);
     document.getElementById("markdown-output").innerHTML = this.outputHTML;
     this.setState({value: event.target.value});
   }

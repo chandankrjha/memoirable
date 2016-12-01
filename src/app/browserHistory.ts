@@ -1,10 +1,10 @@
 /// <reference path="../../typings/index.d.ts" />
 
-import { createHistory } from 'history';
+import { createHistory, createHashHistory } from 'history';
 import { useRouterHistory } from 'react-router';
 
-const browserHistory = useRouterHistory(createHistory)({
-  basename: '/memoirable'
+const browserHistory = useRouterHistory(createHashHistory)({
+  //basename: '/memoirable'
 });
 
 export default browserHistory;

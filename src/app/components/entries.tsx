@@ -29,7 +29,19 @@ export default class Entries extends React.Component<IEntries, IEntriesState> {
    * @returns 
    */
   componentWillMount() {
-    this.fetchFiles(false);
+    //this.fetchFiles(false);
+
+    var ff = function(){
+      //console.log(gapi.auth.getToken().access_token);
+      AuthActions.authorize({provider:ProviderTypes.GOOGLE});
+    }
+    if (typeof gapi.auth === 'undefined' || gapi.auth.getToken && gapi.auth.getToken() === null) {
+      setTimeout(ff, 500);
+    } else {
+      ff();
+    }
+
+    
   }
   
   /**
@@ -53,7 +65,10 @@ export default class Entries extends React.Component<IEntries, IEntriesState> {
         that.entryClicked(files[0]);  
       }
       
-    }})
+    }});
+  
+
+    
   }
   
   /**

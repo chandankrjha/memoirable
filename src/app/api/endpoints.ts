@@ -8,4 +8,8 @@ type EndPointMap = {
 }
 
 export const endPoints: EndPointMap = {
+  'uploadToImgur': {
+    method : 'POST',
+    url : 'https://api.imgur.com/3/image'
+  }
 };

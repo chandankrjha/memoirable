@@ -9,10 +9,12 @@ import Emitter from '../events/appEvent';
 import GAuthStore from '../stores/gAuthStore';
 import browserHistory from '../browserHistory';
 import CalendarWrapper from '../components/calendarwrapper';
+import { Server } from '../api/baseDAO';
 
 export default class AuthHeader extends React.Component<{}, any> {
   _listenerToken: FBEmitter.EventSubscription;
   toggledClass: string = 'hide-header-menu';
+  _inputNode;
   constructor() {
     super();
     GAuthStore.cleanState();
@@ -28,8 +30,11 @@ export default class AuthHeader extends React.Component<{}, any> {
    */
   componentDidMount() {
     this._listenerToken = GAuthStore.addChangeListener(AuthActionTypes.AUTH_GET_PROFILE, this._setStateFromStores.bind(this));
-    AuthActions.updateProfileInfo({ provider: ProviderTypes.GOOGLE });
+    //AuthActions.updateProfileInfo({ provider: ProviderTypes.GOOGLE });
     AuthActions.createInitialFolderStructure({ provider: ProviderTypes.GOOGLE});
+
+    this._inputNode = ReactDOM.findDOMNode(this.refs["fileChooser"]);
+    this._inputNode.addEventListener("click", this.clickHiddenFile);
   }
 
   /**
@@ -86,6 +91,35 @@ export default class AuthHeader extends React.Component<{}, any> {
     browserHistory.push('/');  
   }
 
+  clickHiddenFile() {
+    if(this._inputNode && this._inputNode.click){
+      this._inputNode.click();
+    }
+  }
+
+  handleFileInput(e) {
+    var file = e.target.files[0];
+
+    var reader = new FileReader();
+    reader.readAsBinaryString(file);
+    reader.onload = function(e) {
+      var base64Data = btoa(reader.result);
+
+      Server.call('uploadToImgur', null, {
+        image : reader.result,
+        type : 'file',
+        title: file.name,
+        description: 'memoirable image'
+      }).done(function(response){
+        console.log("meow, meow, meow")
+        console.log(response);
+      }).fail(function(reason){
+        console.log(reason);
+      });  
+
+    }
+  }
+
   render() {
     return (
       <div className="auth-header row">
@@ -95,6 +129,15 @@ export default class AuthHeader extends React.Component<{}, any> {
           </button>
           <button className="strip-button pull-left">
             <span className="memocon-format_italic" onClick={() => this.editorAction(EditorActionTypes.ITALICS)} />
+          </button>
+          <div>
+      <a class="post" href="https://api.imgur.com/oauth2/authorize?response_type=token&client_id=2288bd68956bfa9&callback">
+        Post image to imgur
+      </a>
+    </div>
+          <button className="strip-button pull-left">
+            <span className="memocon-attach" onClick={this.clickHiddenFile.bind(this)} />
+            <input type="file" hidden onChange={(e) => this.handleFileInput(e)}  ref="fileChooser" accept="image/*"/>
           </button>
           <div className="dropdown pull-right">
             <button className="strip-button text-content" type="button" onClick={this.toggleClass.bind(this)}>

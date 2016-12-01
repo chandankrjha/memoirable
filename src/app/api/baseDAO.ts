@@ -4,6 +4,9 @@ import { Utils } from '../helpers';
 import { endPoints } from './endpoints';
 import Emitter from '../events/appEvent';
 import { LoadingActionTypes } from '../actions/types';
+import * as $ from "jquery";
+// declare function require(name:string);
+// var $ = require('jquery');
 
 let accessToken = Utils.get('newAccessToken');
 

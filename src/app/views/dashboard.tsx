@@ -28,7 +28,6 @@ export class Dashboard extends React.Component<{}, IAuth> {
    */
   componentDidMount() {
     this._listenerToken = GAuthStore.addChangeListener(AuthActionTypes.AUTH_GET_PROFILE, this._setStateFromStores.bind(this));
-
     AuthActions.updateProfileInfo({ provider: ProviderTypes.GOOGLE });
   }
 

@@ -16,7 +16,8 @@ export const AuthActionTypes = {
   FETCH_PARTICULAR_FILE: 'files.fetchFile',
   SAVE_FILE: 'file.save',
   ADD_NEW_ENTRY: 'entry.add',
-  SELECTED_FILE: 'file.selected'
+  SELECTED_FILE: 'file.selected',
+  PHOTO_UPLOADED: 'photo.uploaded'
 }
 
 export const ProviderTypes = {

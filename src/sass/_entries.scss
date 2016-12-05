@@ -15,7 +15,7 @@ $entries-box-height: 200px;
   height: $entries-box-height;
   background: #f9f9f9;
   border-left: 1px solid #bbc;
-  
+  z-index: 1;
   .entries-list {
     overflow-y: visible;
     overflow-x: hidden;

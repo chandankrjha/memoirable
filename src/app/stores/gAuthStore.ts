@@ -23,12 +23,13 @@ class GoogleAuthStore extends BaseStore < IAuth > {
   folderIds = {
     'Memoirable': '',
     'Entries': '',
-    'currentFolderId': ''
+    'currentFolderId': '',
+    'Photos': ''
   }
   currentFileId: string = '';
   currentFolderIdInUse: string;
   currentFileObj: any ;
-  
+  photoResponse: any;
   /**
    * @description
    *
@@ -94,9 +95,9 @@ class GoogleAuthStore extends BaseStore < IAuth > {
     var that = this;
     gapi.client.load('drive', 'v3', function() {
       gapi.client.drive.files.list({
-        q: "mimeType='application/vnd.google-apps.folder' and name='Memoirable' or name='Entries'",
+        q: "mimeType='application/vnd.google-apps.folder' and name='Memoirable' or name='Entries' or name='MemoirablePhotos'",
         fields: 'files(id, name)',
-        spaces: 'appDataFolder'
+        spaces: 'appDataFolder,drive'
       }).then(function(response) {
 
         // check whether the initial structure is present or not
@@ -107,9 +108,26 @@ class GoogleAuthStore extends BaseStore < IAuth > {
             } else if (item.name === 'Entries') {
               folderIds['Entries'] = item.id;
             }
+            else if( item.name === 'MemoirablePhotos'){
+              folderIds['Photos'] = item.id;
+            }
           });
 
           // Entries and Memoirable folder exists
+
+          if(folderIds['Photos'] === ''){
+            let photosData = {
+              name: 'MemoirablePhotos',
+              mimeType: 'application/vnd.google-apps.folder'
+            };
+
+            that._requestForFolderGoogleDrive(photosData).then(function(response) {
+              console.log("Photos Folder created");
+              folderIds['Photos'] = response.result.id;
+            }, function(reason) {
+              console.log(reason);
+            });
+          }
 
         } else {
 
@@ -131,6 +149,20 @@ class GoogleAuthStore extends BaseStore < IAuth > {
             }, function(reason) {
               console.log(reason);
             });
+
+            let photosData = {
+              name: 'MemoirablePhotos',
+              mimeType: 'application/vnd.google-apps.folder'
+            };
+            that._requestForFolderGoogleDrive(photosData).then(function(response) {
+              console.log("Photos Folder created");
+              folderIds['Photos'] = response.result.id;
+
+              console.log(response);
+            }, function(reason) {
+              console.log(reason);
+            });
+            
           }, function(reason) {
             console.log(reason);
           });
@@ -214,10 +246,15 @@ class GoogleAuthStore extends BaseStore < IAuth > {
       var contentType = fileData.type || 'application/octet-stream';
       var metadata = {
         'title': filename,
-        'mimeType': contentType,
-        'parents': [{ 'id': 'appfolder' }]
+        'mimeType': contentType
       };
-
+       
+      if(folderId && folderId.length >0){
+        metadata['parents'] = [{ 'id': folderId}]
+      }
+      else {
+        metadata['parents']= [{ 'id': 'appfolder' }]
+      }
       var path, method;
       if (key === 'update') {
         path = '/upload/drive/v2/files/' + fileId;
@@ -253,6 +290,10 @@ class GoogleAuthStore extends BaseStore < IAuth > {
         that.currentFileId = response.result.id;
         if(callback  && typeof callback === 'function'){
           callback(response.result.id);
+          that.photoResponse = response.result;
+
+          that._changeToken = 'photo.uploaded';
+          that.emitChange();
         }
 
         that._changeToken = 'file.save';
@@ -343,6 +384,10 @@ class GoogleAuthStore extends BaseStore < IAuth > {
     });
   }
 
+  uploadFileToDrive(file, callback?){
+    let folderId = this.folderIds['Photos'];
+    this._insertOrUpdateFile(file,folderId,file.name,'create', callback)
+  }
   
   constructor(dispatcher: Flux.Dispatcher < AppEvent > ) {
     super(dispatcher, (event: AppEvent) => {

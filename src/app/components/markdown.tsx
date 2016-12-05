@@ -21,6 +21,7 @@ export interface IMarkdowState { inputText?: string , files?: any};
 
 export default class Markdown extends React.Component<{}, IMarkdowState> {
   _listenerToken : FBEmitter.EventSubscription;
+  _listenerTokenPhotos : FBEmitter.EventSubscription;
   valueBefore: string;
   files: any;
   valueWhileSaving: string = '';
@@ -148,6 +149,11 @@ export default class Markdown extends React.Component<{}, IMarkdowState> {
         that.valueWhileSaving = '';
       }
     });
+
+    this._listenerTokenPhotos = GAuthStore.addChangeListener(AuthActionTypes.PHOTO_UPLOADED, function(){
+      console.log('meowfsdfsdfsdf');
+      editor.setValue(editor.getValue() + '\n \n' + '![Memoirable Image]('+GAuthStore.photoResponse.webContentLink.split('download')[0]+'view)');
+    })
   }
 
   /**

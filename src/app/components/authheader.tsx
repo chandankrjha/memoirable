@@ -86,6 +86,16 @@ export default class AuthHeader extends React.Component<{}, any> {
     browserHistory.push('/');  
   }
 
+  handleClick(file){
+    console.log(file);
+  }
+
+  fileChange(e){
+    var file = e.target.files[0];
+    GAuthStore.uploadFileToDrive(file, function(){
+      console.log('Photo uploaded successfully');
+    });
+  }
   render() {
     return (
       <div className="auth-header row">
@@ -96,6 +106,10 @@ export default class AuthHeader extends React.Component<{}, any> {
           <button className="strip-button pull-left">
             <span className="memocon-format_italic" onClick={() => this.editorAction(EditorActionTypes.ITALICS)} />
           </button>
+          <label className="custom-file-upload">
+            <span className="memocon-attachment" />
+            <input type="file" onClick={() => this.handleClick('file')} onChange={(e) => this.fileChange(e) }  />
+          </label>
           <div className="dropdown pull-right">
             <button className="strip-button text-content" type="button" onClick={this.toggleClass.bind(this)}>
               {this.state.displayName}
